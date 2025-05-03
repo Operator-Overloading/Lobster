@@ -63,8 +63,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);CORE.lib;OpenGLRenderer.lib;glfw3.lib;GLAD.lib;imgui.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);core.lib;glr.lib;glfw3.lib;glad.lib;imgui_docking.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Libraries\$(Configuration)\;$(SolutionDir)\Libraries\;</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -79,12 +80,13 @@
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\Includes;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);CORE.lib;OpenGLRenderer.lib;glfw3.lib;GLAD.lib;imgui.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);core.lib;glr.lib;glfw3.lib;glad.lib;imgui_docking.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\Libraries\$(Configuration)\;$(SolutionDir)\Libraries\;</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

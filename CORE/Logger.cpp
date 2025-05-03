@@ -39,7 +39,23 @@ namespace Lobster
 		tm current_time;
 		_localtime64_s(&current_time,&now_time);
 
-		std::cout << color_code << std::put_time(&current_time,"%Y-%m-%d %X") << " [" << LevelToString(level) << "] " << message << std::endl;
+		std::stringstream ss_log;
+		ss_log << color_code;
+		ss_log << std::put_time(&current_time,"%Y-%m-%d %X");
+		ss_log << " [";
+		ss_log << LevelToString(level);
+		ss_log << "] ";
+		ss_log << message;
+		ss_log << '\n';
+
+		_logs.push_back({level,ss_log.str()});
+
+		if(_logs.size() > _max_logs)
+		{
+			_logs.erase(_logs.begin());
+		}
+
+		std::cout << ss_log.str();
 		std::cout << "\033[37m";
 	}
 
@@ -126,7 +142,7 @@ namespace Lobster
 		ImGui::End();
 	}
 
-	static std::vector<std::shared_ptr<Logger>> _loggers;
+	std::vector<std::shared_ptr<Logger>> LoggerManager::_loggers;
 
 	void LoggerManager::AddLogger(std::shared_ptr<Logger> logger)
 	{

@@ -52,8 +52,20 @@ namespace Lobster
 	public:
 		void Log(LogLevel level,const std::string& message) override;
 
-		inline void Attach() override {}
-		inline void Detach() override {}
+		inline void Attach() override { _attached = true; }
+		inline void Detach() override { _attached = false; }
+	private:
+		struct LogEntry
+		{
+			LogLevel level;
+			std::string message;
+		};
+
+		const unsigned int _max_logs = 1024;
+
+		bool _attached = false;
+
+		std::vector<LogEntry> _logs;
 	};
 
 	class ImGuiConsoleLogger : public Logger
@@ -89,6 +101,8 @@ namespace Lobster
 
 		static void Attach();
 		static void Detach();
+	private:
+		static std::vector<std::shared_ptr<Logger>> _loggers;
 	};
 
 }

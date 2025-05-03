@@ -1,5 +1,7 @@
 #include "Window.h"
 #include "Logger.h"
+#include "AppEvents.h"
+#include "InputEvents.h"
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -7,6 +9,8 @@
 
 #include <glfw/glfw3.h>
 #include <glfw/glfw3native.h>
+
+
 
 namespace Lobster
 {
@@ -29,12 +33,138 @@ namespace Lobster
 
 		glfwMakeContextCurrent(_window);
 		glfwSetWindowUserPointer(_window,this);
-		glfwSetKeyCallback(_window,KeyCallbackWrapper);
-		glfwSetMouseButtonCallback(_window,MouseButtonCallbackWrapper);
-		glfwSetCursorPosCallback(_window,CursorPosCallbackWrapper);
-		glfwSetWindowSizeCallback(_window,ResizeCallbackWrapper);
 
-		glfwSwapInterval(1);
+		SetVSync(true);
+
+		glfwSetWindowSizeCallback(_window,[](GLFWwindow* window,int width,int height)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+			_window.SetWidth(width);
+			_window.SetWidth(width);
+
+			WindowResizeEvent event(width,height);
+			_window.event_callback(event);
+		});
+
+		glfwSetWindowMaximizeCallback(_window,[](GLFWwindow* window,int maximized)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			if(maximized == 1)
+			{
+				_window.SetMinimized(false);
+			}
+			else
+			{
+				_window.SetMinimized(true);
+			}
+		});
+
+		glfwSetWindowPosCallback(_window,[](GLFWwindow* window,int pos_x,int pos_y)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			WindowMoveEvent event(pos_x,pos_y);
+			_window.event_callback(event);
+		});
+
+		glfwSetWindowFocusCallback(_window,[](GLFWwindow* window,int focused)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			if(focused == 1)
+			{
+				WindowFocusEvent event;
+				_window.SetFocued(true);
+				_window.event_callback(event);
+			}
+			else
+			{
+				WindowFocusLostEvent event;
+				_window.SetFocued(false);
+				_window.event_callback(event);
+			}
+		});
+
+		glfwSetWindowCloseCallback(_window,[](GLFWwindow* window)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			WindowCloseEvent event;
+			_window.event_callback(event);
+		});
+
+		glfwSetKeyCallback(_window,[](GLFWwindow* window,int key,int scancode,int action,int mods)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+				case GLFW_PRESS:
+				{
+					KeyPressedEvent event(key,false);
+					_window.event_callback(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					KeyReleasedEvent event(key);
+					_window.event_callback(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					KeyPressedEvent event(key,true);
+					_window.event_callback(event);
+					break;
+				}
+			}
+		});
+
+		glfwSetCharCallback(_window,[](GLFWwindow* window,unsigned int keycode)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			KeyTypedEvent event(keycode);
+			_window.event_callback(event);
+		});
+
+		glfwSetMouseButtonCallback(_window,[](GLFWwindow* window,int button,int action,int mods)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+			
+			switch (action)
+			{
+				case GLFW_PRESS:
+				{
+					MouseClickedEvent event(button);
+					_window.event_callback(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					MouseReleasedEvent event(button);
+					_window.event_callback(event);
+					break;
+				}
+			}
+		});
+
+		glfwSetScrollCallback(_window,[](GLFWwindow* window,double offset_x,double offset_y)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			MouseScrolledEvent event((float)offset_x,(float)offset_y);
+			_window.event_callback(event);
+		});
+
+		glfwSetCursorPosCallback(_window,[](GLFWwindow* window,double pos_x,double pos_y)
+		{
+			Window& _window = *(Window*)glfwGetWindowUserPointer(window);
+
+			MouseMovedEvent event((float)pos_x,(float)pos_y);
+			_window.event_callback(event);
+		});
 	}
 	
 	Window::~Window()
@@ -54,68 +184,16 @@ namespace Lobster
 		return glfwWindowShouldClose(_window);
 	}
 
+	void Window::SetVSync(bool vsync)
+	{
+		glfwSwapInterval(vsync);
+		_vsync = vsync;
+	}
+
 #ifdef _WIN32
 	HWND Window::GetWindowsHandle()
 	{
 		return glfwGetWin32Window(_window);
 	}
 #endif
-
-	void Window::SetKeyCallback(std::function<void(int,int,int,int)> func)
-	{
-		_key_callback = func;
-	}
-
-	void Window::SetMouseButtonCallback(std::function<void(int,int,int)> func)
-	{
-		_mouse_button_callback = func;
-	}
-
-	void Window::SetCursorPosCallback(std::function<void(double,double)> func)
-	{
-		_cursor_pos_callback = func;
-	}
-
-	void Window::SetResizeCallback(std::function<void(int,int)> func)
-	{
-		_resize_callback = func;
-	}
-
-	void Window::KeyCallbackWrapper(GLFWwindow* window,int key,int scancode,int action,int mods)
-	{
-		Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if(win && win->_key_callback)
-		{
-			win->_key_callback(key,scancode,action,mods);
-		}
-	}
-
-	void Window::MouseButtonCallbackWrapper(GLFWwindow* window,int button,int action,int mods)
-	{
-		Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if(win && win->_mouse_button_callback)
-		{
-			win->_mouse_button_callback(button,action,mods);
-		}
-	}
-
-	void Window::CursorPosCallbackWrapper(GLFWwindow* window,double xpos,double ypos)
-	{
-		Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if(win && win->_cursor_pos_callback)
-		{
-			win->_cursor_pos_callback(xpos,ypos);
-		}
-	}
-
-	void Window::ResizeCallbackWrapper(GLFWwindow* window,int width,int height)
-	{
-		Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if(win && win->_resize_callback)
-		{
-			win->_width = width;
-			win->_height = height;
-			win->_resize_callback(width,height);
-		}
-	}
 }

@@ -46,10 +46,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\Libraries\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Libraries\Int\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>core</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\Libraries\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Libraries\Int\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>core</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -91,12 +93,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Event.cpp" />
+    <ClCompile Include="Layer.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MemoryManagment.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppEvents.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Event.h" />
+    <ClInclude Include="InputEvents.h" />
+    <ClInclude Include="KeyCode.h" />
+    <ClInclude Include="Layer.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MemoryManagment.h" />
     <ClInclude Include="Window.h" />
