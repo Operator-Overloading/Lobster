@@ -69,10 +69,14 @@ namespace Lobster
 
 			if(!window->IsMinimized())
 			{
-				renderer->Clear(0.12f,0.33f,0.33f,1.0f);
+				renderer->Clear(0.26f,0.11f,0.14f,1.0f);
 
 				renderer->BeginFrame();
 				imgui_logger->Draw();
+
+				bool show = true;
+
+				ImGui::ShowDemoWindow(&show);
 
 				OnUpdate(0.0f);
 
